@@ -14,50 +14,86 @@
 
 ; rax - accumulator, return data sometimes
 
+; Writing 0 to rax is just something that you should just do. If you don't, the
+; program may randomly SEGFAULT. This is fun :)
+
         segment .text
 floating_point_io:
         push rbp                       ; begin new function stack frmae
         mov rbp, rsp                   ; bp = back ptr, sp = stack ptr
 
+        push rsi
+        push rdi
+        push rdx
+        push r12
+        push r13
+
+        mov rax, 0
         mov rdi, msg_please_enter      ; arg1, f-string
         call printf                    ; printf(...)
 
-; ; mov rax, 0                     ; tell scanf there's no xmm instructions involved
-; mov rdi, msg_float_f           ; arg1, f-string
-; push qword 0                   ; push a new float64 (qword) onto the stack (rsp)
-; mov rsi, rsp                   ; arg2, addr of stack
-; call scanf                     ; scanf(...)
-; movsd xmm12, [rsp]             ; use movsd (single double) for float64, not mov; [rsp] = *rsp
-; pop rax
-
-; Alternatively, scanf %s and atof it.
-        mov rdi, msg_str_f             ; arg1, f-string
-        sub rsp, 1024                  ; grow a 1024-byte stack
+; We should scanf %s and atof it, just so we can use isfloat().
+; Call scanf with 2 1024-byte stack buffers. Not too sure what happens if it overflows, lol.
+        mov rax, 0
+        mov rdi, msg_str2_f            ; arg1, f-string for 2 %s
+        sub rsp, [num_scanf_buflen]    ; grow a 1024-byte stack ONCE for do_scan
         mov rsi, rsp                   ; arg2, make scanf output to stack pointer
+        sub rsp, [num_scanf_buflen]    ; grow the stack again for the second string
+        mov rdx, rsp                   ; arg3, another buffer
         call scanf                     ; scanf(...), how does scanf know to use rsp?
 
-; Validate input
-        mov rax, 0                     ; zero out rax; this is used for returns
-        mov rdi, rsp                   ; arg1, use stack pointer as argument
-        call isfloat
+; Copy first string to r12, second to r13.
+        mov r12, rsi
+        mov r13, rdx
 
+; Validate input r12
+        mov rax, 0                     ; zero out rax; this is used for returns
+        mov rdi, r12                   ; arg1, use stack pointer as argument
+        call isfloat                   ; rax = isfloat(...)
 ; Exit if not float
         cmp rax, 0                     ; rax == 0
-        je throw_invalid_float         ; if rax == 0 (FALSE); then goto exit_1
+        je throw_invalid_float         ; if above, then goto exit_1
 
-; Call atof to get a float
-        mov rdi, rsp                   ; arg1, become the 1024-byte stack
+; Validate input r13
+        mov rax, 0                     ; zero out rax; this is used for returns
+        mov rdi, r13                   ; arg1, use stack pointer as argument
+        call isfloat                   ; rax = isfloat(...)
+; Exit if not float
+        cmp rax, 0                     ; rax == 0
+        je throw_invalid_float         ; if above, then goto exit_1
+
+; Call atof to get the first float
+        mov rax, 0
+        mov rdi, r12                   ; arg1, first string
         call atof
-        movsd xmm12, xmm0              ; save to xmm12
+        movsd xmm12, xmm0              ; write to xmm12
 
-; This is for testing, but we need to use xmm0 as the register for the return value.
-; mov rax, 0                     ; copy 0 to rax
-; push rax                       ; put that on top of the stack
-; movsd xmm0, [rsp]              ; xmm0 = *rsp
-; pop rax                        ; undo rax
+; Call atof to get the second float
+        mov rax, 0
+        mov rdi, r13                   ; arg1, second string
+        call atof
+        movsd xmm13, xmm0              ; write to xmm13
 
-finish:
-        add rsp, 1024                  ; clean up the 1024-byte grow
+; We're done scanning.
+        mov rax, 1                     ; 1 xmm arg needed
+        mov rdx, msg_float_f           ; arg1: f-string
+        movsd xmm0, xmm12              ; xmm0 = xmm13 for printf
+        call printf
+
+        mov rax, 1                     ; 1 xmm arg needed
+        mov rdx, msg_float_f           ; arg1: f-string
+        movsd xmm0, xmm13              ; xmm0 = xmm13 for printf
+        call printf
+; ucomisd
+
+return:
+        add rsp, num_scanf_buflen      ; clean up the 1024-byte grow
+        add rsp, num_scanf_buflen      ; clean up the 1024-byte grow
+        pop r13
+        pop r12
+        pop rdx
+        pop rdi                        ; unwind
+        pop rsi
         pop rbp                        ; undo function stack
         ret                            ; return, this will use xmm0
 
@@ -65,17 +101,21 @@ throw_invalid_float:
         mov rdi, msg_invalid_float     ; arg1, invalid float message
         call printf                    ; printf(...)
         movsd xmm0, [num_neg_1]        ; write -1 to be returned
-        jmp finish                     ; return
+        jmp return
 
         segment .data
 num_neg_1:
         dq 0xBFF0000000000000
+num_scanf_buflen:
+        dq 1024
 msg_n:
         db 0xA, 0
+msg_str2_f:
+        db "%s %s", 0
 msg_str_f:
         db "%s", 0
 msg_float_f:
-        db "%lf", 0
+        db "%1.15lf", 0
 msg_please_enter:
         db "Please enter two float numbers separated by white space. Press enter after the second input.", 0xA, 0
 msg_confirm_entered:
