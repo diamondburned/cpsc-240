@@ -51,8 +51,8 @@ let lib  = systemPkgs.lib;
 		src = pkgs.fetchFromGitHub {
 			owner  = "diamondburned";
 			repo   = "nasmfmt";
-			rev    = "94900ad";
-			sha256 = "0nmhxbpgd8w10xbwdcpvsil2jycqrfkdyhy7xqi71p2k01wf7w4a";
+			rev    = "ebb62f5";
+			sha256 = "1yh9l5xr01klvc92svg96wjgzlzfnw2hwvh4l1r6y3qk5spgdhv3";
 		};
 	};
 

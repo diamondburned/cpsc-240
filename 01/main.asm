@@ -1,8 +1,34 @@
+; Name: Diamond Dinh
+; Language(s): C++, x86 Assembly
+; Dates: 22 August, 2022 ~ 31 August, 2022
+; File(s): main.asm, main.cpp, isfloat.cpp
+; Status: Done
+; References:
+;   https://www.cs.uaf.edu/2003/fall/cs301/doc/nasmdoc0.html
+;   https://www.nasm.us/xdoc/2.10.09/html/nasmdoc3.html
+;   https://sites.google.com/a/fullerton.edu/activeprofessor/4-subjects/x86-programming/library-software/isfloat?authuser=0
+;   https://sites.google.com/a/fullerton.edu/activeprofessor/4-subjects/x86-programming/x86-examples/floating-io?authuser=0
+; Module Info:
+;   File name: main.asm
+;   Language: x86 Assembly
+;   How to compile:
+;     #!/usr/bin/env bash
+;     set -e
+;     rm -f -- *.o *.lis *.out
+;  
+;     for f in *.asm; do
+;         nasm -f elf64 -o "$f.o" "$f"
+;     done
+;     for f in *.cpp; do
+;         g++ -g -c -m64 -Wall -std=c++17 -fno-pie -no-pie -o "$f.o" "$f"
+;     done
+;  
+;     g++ -g -m64 -std=c++14 -fno-pie -no-pie -o "$(basename "$PWD").out" *.o
+
         extern printf
         extern scanf
         extern atof
         extern isfloat
-        extern exit
 
         global floating_point_io
 
@@ -53,7 +79,7 @@ floating_point_io:
         call isfloat                   ; rax = isfloat(...)
 ; Exit if not float
         cmp rax, 0                     ; rax == 0
-        je throw_invalid_float         ; if above, then goto exit_1
+        je throw_invalid_float         ; if above, then jump
 
 ; Validate input r13
         mov rax, 0                     ; zero out rax; this is used for returns
@@ -61,7 +87,7 @@ floating_point_io:
         call isfloat                   ; rax = isfloat(...)
 ; Exit if not float
         cmp rax, 0                     ; rax == 0
-        je throw_invalid_float         ; if above, then goto exit_1
+        je throw_invalid_float         ; if above, then jump
 
 ; Call atof to get the first float
         mov rax, 0
