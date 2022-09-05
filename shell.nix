@@ -46,13 +46,13 @@ let lib  = systemPkgs.lib;
 
 	nasmfmt = pkgs.buildGo118Module {
 		pname = "nasmfmt";
-		version = "2.0.1-1026bf3";
+		version = "2.0.2-004122b";
 
 		src = pkgs.fetchFromGitHub {
 			owner  = "diamondburned";
 			repo   = "nasmfmt";
-			rev    = "1026bf3";
-			sha256 = "18mbijf0llz2yfbf0l6jv4micsqd3pb9l91hbl62c5hwv3la73sq";
+			rev    = "004122b";
+			sha256 = "1a8sl75xpvdgrscsqpi231nfn2kmmqrbqqngd6jpahy4y9klj5sf";
 		};
 
 		vendorSha256 = null;
