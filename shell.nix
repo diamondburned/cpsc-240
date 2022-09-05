@@ -27,33 +27,35 @@ let lib  = systemPkgs.lib;
 	build = pkgs.writeShellScriptBin "build" ''
 		set -e
 		rm -f -- *.o *.lis *.out
+
+		CXXFLAGS+="-g -m64 -std=c++17 -fsanitize=address -fstack-protector -fpie -pie"
 		
 		for f in *.asm; do
 			nasm -f elf64 -o "$f.o" "$f"
 		done
 		for f in *.cpp; do
-			g++ -g -c -m64 -Wall -std=c++17 -fno-pie -no-pie -o "$f.o" "$f"
+			g++ -c -Wall $CXXFLAGS -o "$f.o" "$f"
 		done
 		
-		g++ -g -m64 -std=c++14 -fno-pie -no-pie -o "$(basename "$PWD").out" ./*.o
+		g++ $CXXFLAGS -o "$(basename "$PWD").out" ./*.o
 	'';
 
 	nasm = pkgs.writeShellScriptBin "nasm" ''
 		${pkgs.nasm}/bin/nasm -f elf64 "$@"
 	'';
 
-	nasmfmt = pkgs.buildGoPackage {
+	nasmfmt = pkgs.buildGo118Module {
 		pname = "nasmfmt";
-		version = "94900ad";
-
-		goPackagePath = "github.com/diamondburned/nasmfmt";
+		version = "2.0.1-1026bf3";
 
 		src = pkgs.fetchFromGitHub {
 			owner  = "diamondburned";
 			repo   = "nasmfmt";
-			rev    = "ebb62f5";
-			sha256 = "1yh9l5xr01klvc92svg96wjgzlzfnw2hwvh4l1r6y3qk5spgdhv3";
+			rev    = "1026bf3";
+			sha256 = "18mbijf0llz2yfbf0l6jv4micsqd3pb9l91hbl62c5hwv3la73sq";
 		};
+
+		vendorSha256 = null;
 	};
 
 	PROJECT_ROOT   = builtins.toString ./.;
