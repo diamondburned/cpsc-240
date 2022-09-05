@@ -28,7 +28,7 @@ let lib  = systemPkgs.lib;
 		set -e
 		rm -f -- *.o *.lis *.out
 
-		CXXFLAGS+="-g -m64 -std=c++17 -fsanitize=address -fstack-protector -fpie -pie"
+		CXXFLAGS+="-g -m64 -std=c++17 -fsanitize=address -fstack-protector -fno-pie -no-pie"
 		
 		for f in *.asm; do
 			nasm -f elf64 -o "$f.o" "$f"
