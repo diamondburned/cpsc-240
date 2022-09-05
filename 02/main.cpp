@@ -1,3 +1,4 @@
+#include <cmath>
 #include <cstdio>
 #include <ios>
 #include <iostream>
@@ -13,7 +14,7 @@ int main(int argc, char **argv) {
             << "\n\n";
   const auto res = entrypoint();
   std::cout << "The main function received this number " << std::fixed << res
-            << "and plans to keep it."
+            << " and plans to keep it."
             << "\n\n"
             << "An integer zero will be returned to the operating system. "
                "Bye."
