@@ -38,7 +38,27 @@
 ; |==========|
 ; |__________| <- rbp (back pointer)
 
-; rax - accumulator, return data sometimes
+        segment .data
+num_neg_1:
+        dq 0xBFF0000000000000
+num_scanf_buflen:
+        dq 1024
+msg_n:
+        db 0xA, 0
+msg_str2_f:
+        db "%s %s", 0
+msg_str_f:
+        db "%s", 0
+msg_please_enter:
+        db "Please enter two float numbers separated by white space. Press enter after the second input.", 0xA, 0
+msg_confirm_entered:
+        db "These numbers were entered:", 0xA, 0
+msg_larger_number_f:
+        db "The larger number is %1.15lf", 0xA, 0
+msg_ret_to_driver:
+        db "This assembly module will now return execution to the driver module.", 0xA, "The smaller number will be returned to the driver.", 0
+msg_invalid_float:
+        db "An invalid input was detected. You may run this program again", 0xA, 0
 
 ; Writing 0 to rax is just something that you should just do. If you don't, the
 ; program may randomly SEGFAULT. This is fun :)
@@ -53,6 +73,10 @@ floating_point_io:
         push rdi
         push r12
         push r13
+
+; Workaround to realign the stack for C std to work.
+; I don't know why the stack is already misaligned, but Assembly works in mysterious ways.
+        sub rsp, 8
 
         mov rax, 0
         mov rdi, msg_please_enter      ; arg1, f-string
@@ -116,15 +140,14 @@ xmm12_lt_13:
         movsd xmm11, xmm13             ; use 13
 
 done:
-        sub rsp, 8                     ; workaround to realign the stack for C std to work.
         mov rax, 1                     ; 1 xmm arg needed
         mov rdi, msg_larger_number_f   ; arg1: f-string
         movsd xmm0, xmm11              ; use xmm0
         call printf
-        add rsp, 8                     ; undo workaround
 
 return:
-        movsd xmm0, xmm11
+        movsd xmm0, xmm11              ; store float return
+        add rsp, 8                     ; undo C std alignment workaround
         add rsp, [num_scanf_buflen]    ; clean up the 1024-byte grow
         add rsp, [num_scanf_buflen]    ; clean up the 1024-byte grow
         pop r13                        ; unwind
@@ -141,24 +164,3 @@ throw_invalid_float:
         movsd xmm0, [num_neg_1]        ; write -1 to be returned
         jmp return
 
-        segment .data
-num_neg_1:
-        dq 0xBFF0000000000000
-num_scanf_buflen:
-        dq 1024
-msg_n:
-        db 0xA, 0
-msg_str2_f:
-        db "%s %s", 0
-msg_str_f:
-        db "%s", 0
-msg_please_enter:
-        db "Please enter two float numbers separated by white space. Press enter after the second input.", 0xA, 0
-msg_confirm_entered:
-        db "These numbers were entered:", 0xA, 0
-msg_larger_number_f:
-        db "The larger number is %1.15lf", 0xA, 0
-msg_ret_to_driver:
-        db "This assembly module will now return execution to the driver module.", 0xA, "The smaller number will be returned to the driver.", 0
-msg_invalid_float:
-        db "An invalid input was detected. You may run this program again", 0xA, 0
