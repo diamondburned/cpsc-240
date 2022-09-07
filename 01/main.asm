@@ -41,7 +41,6 @@ global floating_point_io
 segment .data
 
 num_neg_1 dq 0xBFF0000000000000
-          dq 0x131223213123
 
 num_scanf_buflen dq 1024
 
@@ -93,11 +92,10 @@ floating_point_io:
 
 ; We should scanf %s and atof it, just so we can use isfloat().
 ; Call scanf with 2 1024-byte stack buffers. Not too sure what happens if it overflows, lol.
-        mov rax, 0
-        mov rdi, msg_str2_f            ; arg1, f-string for 2 %s
-        mov rsi, r12                   ; arg2, make scanf output to stack pointer
-        mov rdx, r13                   ; arg3, another buffer
-                                       ; comment :^)
+        mov  rax, 0
+        mov  rdi, msg_str2_f           ; arg1, f-string for 2 %s
+        mov  rsi, r12                  ; arg2, make scanf output to stack pointer
+        mov  rdx, r13                  ; arg3, another buffer
         call scanf                     ; scanf(...), how does scanf know to use rsp?
 
 ; Validate input r12
