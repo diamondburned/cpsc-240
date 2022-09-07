@@ -24,22 +24,8 @@ let lib  = systemPkgs.lib;
 		stdenv = pkgs.gccStdenv;
 	};
 
-	build = pkgs.writeShellScriptBin "build" ''
-		set -e
-		rm -f -- *.o *.lis *.out
-
-		CXXFLAGS+="-g -m64 -std=c++17 -fsanitize=address -fstack-protector -fno-pie -no-pie"
-		
-		for f in *.asm; do
-			nasm -f elf64 -o "$f.o" "$f"
-		done
-		for f in *.cpp; do
-			g++ -c -Wall $CXXFLAGS -o "$f.o" "$f"
-		done
-		
-		g++ $CXXFLAGS -o "$(basename "$PWD").out" ./*.o
-	'';
-
+	build = pkgs.writeShellScriptBin "build" (builtins.readFile ./build.sh);
+   
 	nasm = pkgs.writeShellScriptBin "nasm" ''
 		${pkgs.nasm}/bin/nasm -f elf64 "$@"
 	'';
