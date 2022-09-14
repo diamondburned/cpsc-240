@@ -131,23 +131,23 @@ floating_point_io:
         ja      xmm12_gt_13            ; 12 > 13
         jmp     xmm12_lt_13            ; else
 
-; We try to use xmm11 here, just because it's safer to be used. Hopefully we
-; can keep stuff in here.
-xmm12_gt_13:
-        movsd xmm11, xmm12             ; use 12
-        jmp   done
+; We'll ensure that xmm12 is always the smaller number and xmm13 is always the
+; bigger number.
+xmm12_gt_13:                           ; Swap: xmm12, xmm13 = xmm13, xmm12
+        movsd xmm11, xmm12             ; tmp = xmm12
+        movsd xmm12, xmm13             ; xmm12 = xmm13
+        movsd xmm13, xmm11             ; xmm13 = tmp
 
 xmm12_lt_13:
-        movsd xmm11, xmm13             ; use 13
 
 done:
         mov   rax, 1                   ; 1 xmm arg needed
         mov   rdi, msg_larger_number_f ; arg1: f-string
-        movsd xmm0, xmm11              ; use xmm0
+        movsd xmm0, xmm13              ; use xmm0
         call  printf
 
 return:
-        movsd xmm0, xmm11              ; store float return
+        movsd xmm0, xmm12              ; store float return
         add   rsp, 8                   ; undo C std alignment workaround
         add   rsp, [num_scanf_buflen]  ; clean up the 1024-byte grow
         add   rsp, [num_scanf_buflen]  ; clean up the 1024-byte grow
