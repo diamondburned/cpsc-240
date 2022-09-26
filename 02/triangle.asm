@@ -1,16 +1,29 @@
+; Name: Diamond Dinh
+; Language(s): C, x86 Assembly
+; Dates: 1 September, 2022 - 18 September, 2022
+; File(s): triangle.asm, pythagoras.c, build.sh, gdb.md
+; Status: Done
+; References:
+;   https://stackoverflow.com/questions/30286671/receiving-input-using-fgets-in-assembly
+;   https://stackoverflow.com/questions/58863145/segmentation-fault-error-when-using-fgets-in-assembly
+;   https://stackoverflow.com/questions/53112333/nasm-x86-64-remove-new-line-character-and-add-0-at-the-end-of-string
+;   https://sites.google.com/a/fullerton.edu/activeprofessor/4-subjects/x86-programming/x86-examples/string-io-demonstration-1-5?authuser=0
+;   https://github.com/hyqneuron/assembler/blob/master/doc/manual/nasm-language.txt#pseudo-instructions
+;   https://faydoc.tripod.com/cpu/jb.htm
+;   https://www.felixcloutier.com/x86
+; Module Info:
+;   File name: triangle.asm
+;   Language: x86 Assembly
+;   How to compile:
+;     build.sh
+
 extern printf
 extern scanf
 extern fgets
 extern stdin
 extern strchr
 
-; https://stackoverflow.com/questions/30286671/receiving-input-using-fgets-in-assembly
-; https://stackoverflow.com/questions/58863145/segmentation-fault-error-when-using-fgets-in-assembly
-; https://stackoverflow.com/questions/53112333/nasm-x86-64-remove-new-line-character-and-add-0-at-the-end-of-string
-; https://sites.google.com/a/fullerton.edu/activeprofessor/4-subjects/x86-programming/x86-examples/string-io-demonstration-1-5?authuser=0
-; https://github.com/hyqneuron/assembler/blob/master/doc/manual/nasm-language.txt#pseudo-instructions
-; https://www.felixcloutier.com/x86
-global entrypoint
+global triangle
 
 segment .data
 
@@ -19,7 +32,8 @@ NUL equ 0
 
 num_buflen equ 256
 
-num_neg1 dq -1
+num_neg1 dq -1.0
+num_zero dq 0.0
 
 msg_lf db LF, NUL
 
@@ -50,7 +64,7 @@ buf_hypot     resq 1
 
 segment .text
 
-entrypoint:
+triangle:
         push rbp
         mov  rbp, rsp
 
@@ -114,6 +128,16 @@ entrypoint:
         call scanf                     ; scanf()
         cmp  rax, 0                    ; if (scanf() == NULL)
         je   invalid                   ; then goto invalid
+
+; Validate side 1 >= 0.
+        movsd  xmm1, [buf_side1]
+        comisd xmm1, [num_zero]        ; buf_side1 vs. num_zero
+        jbe    invalid                 ; if (buf_side1 <= num_zero)
+
+; Validate side 2 >= 0.
+        movsd  xmm1, [buf_side2]
+        comisd xmm1, [num_zero]        ; buf_side2 vs. num_zero
+        jbe    invalid                 ; if (buf_side2 <= num_zero)
 
 ; Formula for the hypotenuse: sqrt(pow(a, 2) + pow(b, 2))
 ; Translated into C then Assembly:
