@@ -37,12 +37,16 @@ let lib  = systemPkgs.lib;
 		src = pkgs.fetchFromGitHub {
 			owner  = "diamondburned";
 			repo   = "nasmfmt";
-			rev    = "004122b";
-			sha256 = "1a8sl75xpvdgrscsqpi231nfn2kmmqrbqqngd6jpahy4y9klj5sf";
+			rev    = "d2122093bfb790f64b56059e642fe985f85dfd51";
+			sha256 = "1miys0n981dvjmh9zc9rr4xxwkgk6qrfb0v7z0dlbdakdgj9yigg";
 		};
 
 		vendorSha256 = null;
 	};
+
+	# nasmfmt = pkgs.writeShellScriptBin "nasmfmt" ''
+	# 	/home/diamond/Scripts/nasmfmt2/nasmfmt "$@"
+	# '';
 
 	PROJECT_ROOT   = builtins.toString ./.;
 	PROJECT_SYSTEM = pkgs.system;
