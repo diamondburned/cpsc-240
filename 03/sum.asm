@@ -18,7 +18,7 @@
 
 global sum
 
-section .text
+section .data
 
 LF  equ 10
 NUL equ 0
