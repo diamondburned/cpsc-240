@@ -4,7 +4,7 @@
 
 extern long int itoa(long int n, char *buf, long int len);
 
-long int dtoa(double n, char *buf, long int buflen) {
+long int ftoa(double n, char *buf, long int buflen) {
   if (buflen == 0) {
     return 0;
   }

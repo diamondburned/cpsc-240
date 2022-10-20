@@ -4,8 +4,8 @@
 //
 // Source Link: https://stackoverflow.com/a/4392789/5041327
 
-// atod converts a string to a double.
-double atod(const char *s, int len) {
+// atof converts a string to a double.
+double atof(const char *s, int len) {
   const char *ends = s + len;
   double rez = 0, fact = 1;
   if (*s == '-') {

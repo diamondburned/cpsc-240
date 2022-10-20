@@ -1,12 +1,15 @@
 PWD := $(shell pwd)
 DIR := $(shell basename $(PWD))
 
+# Who thought implicit rules were a good idea?
+.SUFFIXES:
+
 all: main.out
 
 clean:
 	rm -f *.out *.o
-	rm -f atod.asm
-	rm -f dtoa.asm
+	rm -f atof.asm
+	rm -f ftoa.asm
 
 define ctoasm
 	gcc -Wall -Os -fno-stack-protector -s -c -o $(1).o $(1)
@@ -36,12 +39,12 @@ define ctoasm
 	rm $(1).asm.cmt $(1).asm $(1).o
 endef
 
-atod.asm: _atod.c
-	$(call ctoasm,_atod.c,atod.asm)
+atof.asm: _atof.c
+	$(call ctoasm,_atof.c,atof.asm)
 
-dtoa.asm: _dtoa.c
-	$(call ctoasm,_dtoa.c,dtoa.asm)
+ftoa.asm: _ftoa.c
+	$(call ctoasm,_ftoa.c,ftoa.asm)
 
-main.out: atod.asm dtoa.asm main.asm
+main.out: atof.asm ftoa.asm exit.asm itoa.asm print.asm print_int.asm scan.asm main.asm
 	if [ -f build.sh ]; then ./build.sh; else build; fi
 	mv ${DIR}.out main.out

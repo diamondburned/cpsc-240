@@ -3,17 +3,26 @@
 %ifndef _lib
 
 extern exit
-extern atod
+extern atof
+extern ftoa
 extern itoa
 extern scan
 extern print
 extern print_int
 
-; @atod(str, len) -> xmm0
-%macro @atod 2
+; @atof(str, len) -> xmm0
+%macro @atof 2
         mov  rdi, %1
         mov  rsi, %2
-        call atod
+        call atof
+%endmacro
+
+; @ftoa(num:xmm0, str, len) -> rax
+%macro @ftoa 3
+        movsd xmm0, %1
+        mov   rdi, %2
+        mov   rsi, %3
+        call  ftoa
 %endmacro
 
 ; @itoa(num, str, len) -> rax (parsed length)
