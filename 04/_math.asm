@@ -2,6 +2,8 @@
 
 %ifndef _math
 
+%use fp
+
 ; @cmul(a, b) -> rax
 %macro @cmul 2
         mov  rax, %1
@@ -32,7 +34,7 @@
 ; @deg2rad(deg:xmm?) -> xmm0
 %macro @deg2rad 1
         movsd xmm0, %1
-        mov   rax, __float64__(0.0174532925199432) ; 180/pi
+        mov   rax, float64(0.0174532925199432) ; 180/pi
         movq  xmm1, rax
         mulsd xmm0, xmm1
 %endmacro
