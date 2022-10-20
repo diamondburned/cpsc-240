@@ -22,7 +22,7 @@ hasC=
 out="$(basename "$PWD").out"
 
 for f in $(glob *.asm); do
-	nasm -f elf64 -o "$f.o" "$f"
+	nasm -f elf64 -F dwarf -g -O0 -o "$f.o" "$f"
 done
 
 for f in $(glob *.cpp); do
