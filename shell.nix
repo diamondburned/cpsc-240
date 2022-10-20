@@ -37,8 +37,8 @@ let lib  = systemPkgs.lib;
 		src = pkgs.fetchFromGitHub {
 			owner  = "diamondburned";
 			repo   = "nasmfmt";
-			rev    = "d2122093bfb790f64b56059e642fe985f85dfd51";
-			sha256 = "1miys0n981dvjmh9zc9rr4xxwkgk6qrfb0v7z0dlbdakdgj9yigg";
+			rev    = "ad0ca007ee82098d2d1547bc55748d4201875191";
+			sha256 = "1sglpf5jsld00g4wnpa10v9g8pvhbh7nbnpbq7hwk03jpqj9vbza";
 		};
 
 		vendorSha256 = null;
@@ -63,6 +63,7 @@ in mkshell {
 		git
 		nasm
 		nasmfmt
+		objconv
 	] ++ [
 		clangd
 		clang
