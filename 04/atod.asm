@@ -12,41 +12,41 @@ section .text
 atod:
 
         movsxd rsi, esi
-        movsd  xmm1, qword [rel LC1]
+        movsd  xmm1, qword [rel .LC1]
         add    rsi, rdi
         cmp    byte [rdi], 45
-        jnz    ?_001
-        movsd  xmm1, qword [rel LC0]
+        jnz    .001
+        movsd  xmm1, qword [rel .LC0]
         inc    rdi
-?_001:
-        movsd xmm2, qword [rel LC3]
+.001:
+        movsd xmm2, qword [rel .LC3]
         xor   edx, edx
         xorps xmm0, xmm0
-?_002:
+.002:
         cmp   rdi, rsi
-        jnc   ?_006
+        jnc   .006
         movsx eax, byte [rdi]
         cmp   al, 46
-        jz    ?_004
+        jz    .004
         sub   eax, 48
         cmp   eax, 9
-        ja    ?_005
+        ja    .005
         test  edx, edx
-        jz    ?_003
+        jz    .003
         divsd xmm1, xmm2
-?_003:
+.003:
         mulsd    xmm0, xmm2
         cvtsi2sd xmm3, eax
         addsd    xmm0, xmm3
-        jmp      ?_005
+        jmp      .005
 
-?_004:
+.004:
         mov edx, 1
-?_005:
+.005:
         inc rdi
-        jmp ?_002
+        jmp .002
 
-?_006:
+.006:
 
         mulsd xmm0, xmm1
         ret   
@@ -57,13 +57,13 @@ section .bss
 
 section .rodata
 
-LC0:
+.LC0:
  dq 0BFF0000000000000H
 
-LC1:
+.LC1:
  dq 3FF0000000000000H
 
-LC3:
+.LC3:
  dq 4024000000000000H
 
 

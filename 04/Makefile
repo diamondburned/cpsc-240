@@ -14,7 +14,7 @@ define ctoasm
 	dos2unix -q $(1).asm
 	sed -i \
 		-e 's/;.*$$//' \
-		-e 's/\.\(LC[0-9]*\)/\1/g' \
+		-e 's/?_\([0-9]*\)/.\1/g' \
 		-e 's/^default rel//g' \
 		-e 's/^SECTION \(\.\w*\).*$$/section \1/g' \
 		-e 's/^global \(\w*\):.*$$/global \1/g' \
