@@ -45,6 +45,6 @@ atof.asm: _atof.c
 ftoa.asm: _ftoa.c
 	$(call ctoasm,_ftoa.c,ftoa.asm)
 
-main.out: atof.asm ftoa.asm exit.asm itoa.asm print.asm print_int.asm scan.asm main.asm
+main.out: atof.asm ftoa.asm _lib.asm _math.asm exit.asm itoa.asm print.asm print_int.asm scan.asm main.asm
 	if [ -f build.sh ]; then ./build.sh; else build; fi
 	mv ${DIR}.out main.out

@@ -1,7 +1,5 @@
 // Copyright 2022 Diamond Dinh (diamondburned), licensed under the MIT license.
 
-#include <stdio.h>
-
 extern long int itoa(long int n, char *buf, long int len);
 
 long int ftoa(double n, char *buf, long int buflen) {

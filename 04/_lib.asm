@@ -9,6 +9,7 @@ extern itoa
 extern scan
 extern print
 extern print_int
+extern print_float
 
 ; @atof(str, len) -> xmm0
 %macro @atof 2
@@ -51,6 +52,18 @@ extern print_int
 %macro @print_int 1
         mov  rdi, %1
         call print_int
+%endmacro
+
+; @print_float(float:xmm?)
+%macro @print_float 1
+        movsd xmm0, %1
+        call  print_float
+%endmacro
+
+; @print_time()
+%macro @print_time 0
+        rdtsc                          ; read time-stamp counter into rax
+        @print_int rax                 ; print that counter
 %endmacro
 
 ; @exit(signal)
