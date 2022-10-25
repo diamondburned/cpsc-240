@@ -12,8 +12,8 @@ clean:
 	rm -f ftoa.asm
 
 define ctoasm
-	gcc -Wall -m64 -msse -march=x86-64 -O0 -fno-asynchronous-unwind-tables -fno-stack-protector -s -c -o $(1).o $(1)
-	objconv -v0 -fnasm64 $(1).o $(1).asm
+	gcc -Wall -m64 -msse -march=x86-64 -Os -fno-asynchronous-unwind-tables -fno-stack-protector -s -c -o $(1).o $(1)
+	objconv -nu -v0 -fnasm64 $(1).o $(1).asm
 	dos2unix -q $(1).asm
 	sed -i \
 		-e 's/;.*$$//' \
@@ -22,6 +22,7 @@ define ctoasm
 		-e 's/^SECTION \(\.\w*\).*$$/section \1/g' \
 		-e 's/^global \(\w*\):.*$$/global \1/g' \
 		-e 's/^\([^ ]*\):\(.*\)$$/\1:\n\2/g' \
+		-e 's/qword \(\[rel \.LC[0-9]\]\)/\1/g' \
 		$(1).asm
 	command -v nasmfmt &> /dev/null && nasmfmt $(1).asm
 	echo > $(1).asm.cmt
@@ -43,6 +44,6 @@ atof.asm: _atof.c
 ftoa.asm: _ftoa.c
 	$(call ctoasm,_ftoa.c,ftoa.asm)
 
-main.out: atof.asm ftoa.asm _lib.asm _math.asm exit.asm itoa.asm print.asm print_int.asm scan.asm main.asm
+main.out: *.asm *.c atof.asm ftoa.asm
 	if [ -f build.sh ]; then ./build.sh; else build; fi
 	mv ${DIR}.out main.out
