@@ -25,9 +25,16 @@ let lib  = systemPkgs.lib;
 	};
 
 	build = pkgs.writeShellScriptBin "build" (builtins.readFile ./build.sh);
+
+	nasm_2_14-pkgs = import (pkgs.fetchFromGitHub {
+		owner  = "NixOS";
+		repo   = "nixpkgs";
+		rev    = "de32261d9f1bf17ae726e3332ab43ae0983414af";
+		sha256 = "1ksibwb7b0xczf5aw2db0xa4iyizbnxs7x8mnrg9y3z80gx3xlvk";
+	}) {};
    
 	nasm = pkgs.writeShellScriptBin "nasm" ''
-		${pkgs.nasm}/bin/nasm -f elf64 "$@"
+		${nasm_2_14-pkgs.nasm}/bin/nasm -f elf64 "$@"
 	'';
 
 	nasmfmt = pkgs.buildGo118Module {
