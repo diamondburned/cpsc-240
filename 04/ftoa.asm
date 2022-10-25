@@ -10,118 +10,229 @@ section .text
 
 ftoa:
 
-        test    rsi, rsi
-        je      .014
-        push    rbp
-        mov     rdx, rsi
-        mov     rbp, rsp
-        push    r15
-        push    r14
-        push    r13
-        push    r12
-        push    rbx
-        mov     rbx, rdi
-        sub     rsp, 40
-        ucomisd xmm0, xmm0
-        jpo     .003
-        cmp     rsi, 3
-        jg      .002
+        push  rbp
+        mov   rbp, rsp
+        push  r15
+        push  r14
+        push  r13
+        push  r12
+        push  rbx
+        sub   rsp, 136
+        movsd qword [rbp-98H], xmm0
+        mov   qword [rbp-0A0H], rdi
+        mov   qword [rbp-0A8H], rsi
+        cmp   qword [rbp-0A8H], 0
+        jnz   .001
+        mov   eax, 0
+        jmp   .019
+
 .001:
-        xor eax, eax
-        jmp .013
+        movsd   xmm0, qword [rbp-98H]
+        ucomisd xmm0, qword [rbp-98H]
+        jpo     .003
+        cmp     qword [rbp-0A8H], 3
+        jg      .002
+        mov     eax, 0
+        jmp     .019
 
 .002:
-        mov dword [rdi], 5136718
+        mov rax, qword [rbp-0A0H]
+        mov byte [rax], 78
+        mov rax, qword [rbp-0A0H]
+        add rax, 1
+        mov byte [rax], 97
+        mov rax, qword [rbp-0A0H]
+        add rax, 2
+        mov byte [rax], 78
+        mov rax, qword [rbp-0A0H]
+        add rax, 3
+        mov byte [rax], 0
         mov eax, 3
-        jmp .013
+        jmp .019
 
 .003:
+        movsd     xmm0, qword [rbp-98H]
         cvttsd2si eax, xmm0
-        mov       rsi, rbx
-        movsd     qword [rbp-48H], xmm0
-        movsxd    rdi, eax
-        mov       r15d, eax
+        mov       dword [rbp-70H], eax
+        mov       eax, dword [rbp-70H]
+        cdqe      
+        mov       rdx, qword [rbp-0A8H]
+        mov       rcx, qword [rbp-0A0H]
+        mov       rsi, rcx
+        mov       rdi, rax
         call      itoa
-        test      rax, rax
-        jz        .001
-        cvtsi2sd  xmm1, r15d
-        movsd     xmm0, qword [rbp-48H]
-        subsd     xmm0, xmm1
-        xorps     xmm1, xmm1
-        comisd    xmm1, xmm0
-        jbe       .004
-        xorps     xmm0, oword [rel .LC1]
+        mov       qword [rbp-38H], rax
+        cmp       qword [rbp-38H], 0
+        jnz       .004
+        mov       eax, 0
+        jmp       .019
+
 .004:
-        xorps     xmm1, xmm1
-        comisd    xmm0, xmm1
-        jbe       .013
-        mov       byte [rbx+rax], 46
-        lea       r13, [rbp-37H]
-        inc       rax
-        mov       edx, 7
-        mulsd     xmm0, qword [rel .LC2]
-        mov       rsi, r13
-        mov       r12, rsp
-        mov       r15, rax
-        cvttsd2si r14, xmm0
-        mov       rdi, r14
-        call      itoa
-        test      rax, rax
-        je        .013
-        xor       ecx, ecx
-        test      r14, r14
-        jle       .009
+        pxor     xmm1, xmm1
+        cvtsi2sd xmm1, dword [rbp-70H]
+        movsd    xmm0, qword [rbp-98H]
+        subsd    xmm0, xmm1
+        movsd    qword [rbp-40H], xmm0
+        pxor     xmm0, xmm0
+        comisd   xmm0, qword [rbp-40H]
+        jbe      .005
+        movsd    xmm0, qword [rbp-40H]
+        movq     xmm1, qword [rel .020]
+        xorpd    xmm0, xmm1
+        movsd    qword [rbp-40H], xmm0
 .005:
-        cmp  r14, 99999
-        jg   .006
-        imul r14, r14, 10
-        inc  rcx
-        jmp  .005
+        movsd     xmm0, qword [rbp-40H]
+        pxor      xmm1, xmm1
+        comisd    xmm0, xmm1
+        jbe       .018
+        mov       rax, rsp
+        mov       rbx, rax
+        mov       rdx, qword [rbp-38H]
+        mov       rax, qword [rbp-0A0H]
+        add       rax, rdx
+        mov       byte [rax], 46
+        add       qword [rbp-38H], 1
+        mov       dword [rbp-74H], 7
+        mov       eax, dword [rbp-74H]
+        cdqe      
+        sub       rax, 1
+        mov       qword [rbp-80H], rax
+        mov       eax, dword [rbp-74H]
+        cdqe      
+        mov       r14, rax
+        mov       r15d, 0
+        mov       eax, dword [rbp-74H]
+        cdqe      
+        mov       r12, rax
+        mov       r13d, 0
+        mov       eax, dword [rbp-74H]
+        cdqe      
+        mov       edx, 16
+        sub       rdx, 1
+        add       rax, rdx
+        mov       esi, 16
+        mov       edx, 0
+        div       rsi
+        imul      rax, rax, 16
+        sub       rsp, rax
+        mov       rax, rsp
+        add       rax, 0
+        mov       qword [rbp-88H], rax
+        movsd     xmm1, qword [rbp-40H]
+        movsd     xmm0, qword [rel .021]
+        mulsd     xmm0, xmm1
+        cvttsd2si rax, xmm0
+        mov       qword [rbp-90H], rax
+        mov       eax, dword [rbp-74H]
+        movsxd    rdx, eax
+        mov       rcx, qword [rbp-88H]
+        mov       rax, qword [rbp-90H]
+        mov       rsi, rcx
+        mov       rdi, rax
+        call      itoa
+        mov       qword [rbp-48H], rax
+        cmp       qword [rbp-48H], 0
+        jnz       .006
+        mov       eax, 0
+        mov       rsp, rbx
+        jmp       .019
 
 .006:
-        dec rax
-        lea rdx, [r13+rcx]
+        cmp qword [rbp-90H], 0
+        jle .014
+        mov qword [rbp-50H], 0
+        mov rax, qword [rbp-90H]
+        mov qword [rbp-58H], rax
+        jmp .008
+
 .007:
-        test rax, rax
-        js   .008
-        mov  sil, byte [r13+rax]
-        mov  byte [rdx+rax], sil
-        dec  rax
-        jmp  .007
-
+        add qword [rbp-50H], 1
+        mov rdx, qword [rbp-58H]
+        mov rax, rdx
+        shl rax, 2
+        add rax, rdx
+        add rax, rax
+        mov qword [rbp-58H], rax
 .008:
-        xor   eax, eax
-        test  rcx, rcx
-        mov   rdi, r13
-        cmovs rcx, rax
-        mov   al, 48
-        rep   stosb
-        mov   eax, 6
-.009:
-        mov rdx, rax
-        cmp rax, 1
-        jle .010
-        cmp byte [r13+rdx-1H], 48
-        lea rax, [rax-1H]
-        jz  .009
-.010:
-        mov rax, r15
-.011:
-        mov    ecx, eax
-        lea    rsi, [rbx+rax]
-        sub    ecx, r15d
-        movsxd rcx, ecx
-        cmp    rcx, rdx
-        jge    .012
-        mov    cl, byte [rbp+rcx-37H]
-        mov    byte [rbx+rax], cl
-        inc    rax
-        jmp    .011
+        cmp qword [rbp-58H], 99999
+        jle .007
+        mov rax, qword [rbp-48H]
+        sub rax, 1
+        mov qword [rbp-60H], rax
+        jmp .010
 
+.009:
+        mov   rdx, qword [rbp-60H]
+        mov   rax, qword [rbp-50H]
+        lea   rcx, [rdx+rax]
+        mov   rdx, qword [rbp-88H]
+        mov   rax, qword [rbp-60H]
+        add   rax, rdx
+        movzx edx, byte [rax]
+        mov   rax, qword [rbp-88H]
+        mov   byte [rax+rcx], dl
+        sub   qword [rbp-60H], 1
+.010:
+        cmp qword [rbp-60H], 0
+        jns .009
+        mov qword [rbp-68H], 0
+        jmp .012
+
+.011:
+        mov rdx, qword [rbp-88H]
+        mov rax, qword [rbp-68H]
+        add rax, rdx
+        mov byte [rax], 48
+        add qword [rbp-68H], 1
 .012:
-        mov byte [rsi], 0
-        mov rsp, r12
+        mov  rax, qword [rbp-68H]
+        cmp  rax, qword [rbp-50H]
+        jl   .011
+        mov  eax, dword [rbp-74H]
+        sub  eax, 1
+        cdqe 
+        mov  qword [rbp-48H], rax
+        jmp  .014
+
 .013:
+        sub qword [rbp-48H], 1
+.014:
+        cmp   qword [rbp-48H], 1
+        jle   .015
+        mov   rax, qword [rbp-48H]
+        lea   rdx, [rax-1H]
+        mov   rax, qword [rbp-88H]
+        movzx eax, byte [rax+rdx]
+        cmp   al, 48
+        jz    .013
+.015:
+        mov dword [rbp-6CH], 0
+        jmp .017
+
+.016:
+        mov   rdx, qword [rbp-38H]
+        mov   rax, qword [rbp-0A0H]
+        lea   rcx, [rdx+rax]
+        mov   rdx, qword [rbp-88H]
+        mov   eax, dword [rbp-6CH]
+        cdqe  
+        movzx eax, byte [rdx+rax]
+        mov   byte [rcx], al
+        add   qword [rbp-38H], 1
+        add   dword [rbp-6CH], 1
+.017:
+        mov  eax, dword [rbp-6CH]
+        cdqe 
+        cmp  qword [rbp-48H], rax
+        jg   .016
+        mov  rdx, qword [rbp-38H]
+        mov  rax, qword [rbp-0A0H]
+        add  rax, rdx
+        mov  byte [rax], 0
+        mov  rsp, rbx
+.018:
+        mov rax, qword [rbp-38H]
+.019:
         lea rsp, [rbp-28H]
         pop rbx
         pop r12
@@ -131,23 +242,27 @@ ftoa:
         pop rbp
         ret 
 
-.014:
-
-        xor eax, eax
-        ret 
-
 section .data
 
 section .bss
 
 section .rodata
 
-        ALIGN 16
-.LC1:
+.020:
 
-section .rodata
+ dq 8000000000000000H
+ dq 0000000000000000H
 
-.LC2:
+.021:
  dq 412E848000000000H
+
+section .note
+
+ db 04H, 00H, 00H, 00H, 20H, 00H, 00H, 00H
+ db 05H, 00H, 00H, 00H, 47H, 4EH, 55H, 00H
+ db 02H, 00H, 01H, 0C0H, 04H, 00H, 00H, 00H
+ db 01H, 00H, 00H, 00H, 00H, 00H, 00H, 00H
+ db 01H, 00H, 01H, 0C0H, 04H, 00H, 00H, 00H
+ db 09H, 00H, 00H, 00H, 00H, 00H, 00H, 00H
 
 

@@ -14,51 +14,95 @@ section .text
 
 atof:
 
-        xorps xmm0, xmm0
+        push  rbp
+        mov   rbp, rsp
+        mov   qword [rbp-38H], rdi
+        mov   qword [rbp-40H], rsi
+        pxor  xmm0, xmm0
         divsd xmm0, xmm0
-        test  rsi, rsi
-        jz    .007
-        add   rsi, rdi
-        cmp   byte [rdi], 45
-        movsd xmm2, qword [rel .LC1]
+        movsd qword [rbp-20H], xmm0
+        cmp   qword [rbp-40H], 0
         jnz   .001
-        movsd xmm2, qword [rel .LC0]
-        inc   rdi
+        movsd xmm0, qword [rbp-20H]
+        jmp   .010
+
 .001:
-        movsd xmm3, qword [rel .LC3]
-        xor   edx, edx
-        xorps xmm1, xmm1
+        mov   rdx, qword [rbp-40H]
+        mov   rax, qword [rbp-38H]
+        add   rax, rdx
+        mov   qword [rbp-28H], rax
+        pxor  xmm0, xmm0
+        movsd qword [rbp-8H], xmm0
+        movsd xmm0, qword [rel .011]
+        movsd qword [rbp-10H], xmm0
+        mov   rax, qword [rbp-38H]
+        movzx eax, byte [rax]
+        cmp   al, 45
+        jnz   .002
+        add   qword [rbp-38H], 1
+        movsd xmm0, qword [rel .012]
+        movsd qword [rbp-10H], xmm0
 .002:
-        cmp   rdi, rsi
-        jnc   .006
-        movsx eax, byte [rdi]
-        cmp   al, 46
-        jnz   .003
-        test  edx, edx
-        jnz   .007
-        mov   edx, 1
-        jmp   .005
+        mov dword [rbp-14H], 0
+        jmp .009
 
 .003:
-        sub   eax, 48
-        cmp   eax, 9
-        ja    .007
-        test  edx, edx
+        mov   rax, qword [rbp-38H]
+        movzx eax, byte [rax]
+        cmp   al, 46
+        jnz   .005
+        cmp   dword [rbp-14H], 0
         jz    .004
-        divsd xmm2, xmm3
-.004:
-        mulsd    xmm1, xmm3
-        cvtsi2sd xmm4, eax
-        addsd    xmm1, xmm4
-.005:
-        inc rdi
-        jmp .002
+        movsd xmm0, qword [rbp-20H]
+        jmp   .010
 
+.004:
+        mov dword [rbp-14H], 1
+        jmp .008
+
+.005:
+        mov   rax, qword [rbp-38H]
+        movzx eax, byte [rax]
+        movsx eax, al
+        sub   eax, 48
+        mov   dword [rbp-2CH], eax
+        cmp   dword [rbp-2CH], 0
+        js    .007
+        cmp   dword [rbp-2CH], 9
+        jg    .007
+        cmp   dword [rbp-14H], 0
+        jz    .006
+        movsd xmm0, qword [rbp-10H]
+        movsd xmm1, qword [rel .013]
+        divsd xmm0, xmm1
+        movsd qword [rbp-10H], xmm0
 .006:
-        mulsd  xmm1, xmm2
-        movaps xmm0, xmm1
+        movsd    xmm1, qword [rbp-8H]
+        movsd    xmm0, qword [rel .013]
+        mulsd    xmm1, xmm0
+        pxor     xmm0, xmm0
+        cvtsi2sd xmm0, dword [rbp-2CH]
+        addsd    xmm0, xmm1
+        movsd    qword [rbp-8H], xmm0
+        jmp      .008
+
 .007:
-        ret 
+        movsd xmm0, qword [rbp-20H]
+        jmp   .010
+
+.008:
+        add qword [rbp-38H], 1
+.009:
+        mov   rax, qword [rbp-38H]
+        cmp   rax, qword [rbp-28H]
+        jc    .003
+        movsd xmm0, qword [rbp-8H]
+        mulsd xmm0, qword [rbp-10H]
+.010:
+        movq rax, xmm0
+        movq xmm0, rax
+        pop  rbp
+        ret  
 
 section .data
 
@@ -66,13 +110,23 @@ section .bss
 
 section .rodata
 
-.LC0:
- dq 0BFF0000000000000H
+.011:
 
-.LC1:
  dq 3FF0000000000000H
 
-.LC3:
+.012:
+ dq 0BFF0000000000000H
+
+.013:
  dq 4024000000000000H
+
+section .note
+
+ db 04H, 00H, 00H, 00H, 20H, 00H, 00H, 00H
+ db 05H, 00H, 00H, 00H, 47H, 4EH, 55H, 00H
+ db 02H, 00H, 01H, 0C0H, 04H, 00H, 00H, 00H
+ db 01H, 00H, 00H, 00H, 00H, 00H, 00H, 00H
+ db 01H, 00H, 01H, 0C0H, 04H, 00H, 00H, 00H
+ db 09H, 00H, 00H, 00H, 00H, 00H, 00H, 00H
 
 

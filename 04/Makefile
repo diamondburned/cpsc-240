@@ -12,8 +12,8 @@ clean:
 	rm -f ftoa.asm
 
 define ctoasm
-	gcc -Wall -Os -fno-stack-protector -s -c -o $(1).o $(1)
-	objconv -v0 -fnasm $(1).o $(1).asm
+	gcc -Wall -m64 -msse -march=x86-64 -O0 -fno-asynchronous-unwind-tables -fno-stack-protector -s -c -o $(1).o $(1)
+	objconv -v0 -fnasm64 $(1).o $(1).asm
 	dos2unix -q $(1).asm
 	sed -i \
 		-e 's/;.*$$//' \
@@ -21,8 +21,6 @@ define ctoasm
 		-e 's/^default rel//g' \
 		-e 's/^SECTION \(\.\w*\).*$$/section \1/g' \
 		-e 's/^global \(\w*\):.*$$/global \1/g' \
-		-e 's/^section \.\(note\|eh_frame\)//g' \
-		-e 's/ \+\(db\|dd\) .*//g' \
 		-e 's/^\([^ ]*\):\(.*\)$$/\1:\n\2/g' \
 		$(1).asm
 	command -v nasmfmt &> /dev/null && nasmfmt $(1).asm
