@@ -69,4 +69,6 @@ in mkshell {
 		clang
 		build
 	];
+
+	hardeningDisable = [ "fortify" ];
 }
