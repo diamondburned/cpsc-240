@@ -10,6 +10,8 @@ extern scan
 extern print
 extern print_int
 extern print_float
+extern gettimeofday
+extern clock_gettime
 
 ; @atof(str, len) -> xmm0
 %macro @atof 2
@@ -41,6 +43,17 @@ extern print_float
         call scan
 %endmacro
 
+; @gettimeofday() -> rax
+%macro @gettimeofday 0
+        call gettimeofday
+%endmacro
+
+; @clock_gettime(type) -> rax
+%macro @clock_gettime 1
+        mov  rdi, %1
+        call clock_gettime
+%endmacro
+
 ; @print(msg, len)
 %macro @print 2
         mov  rdi, %1
@@ -62,8 +75,8 @@ extern print_float
 
 ; @print_time()
 %macro @print_time 0
-        rdtsc                          ; read time-stamp counter into rax
-        @print_int rax                 ; print that counter
+        @clock_gettime 0               ; get realtime clock
+        @print_int     rax             ; print that counter
 %endmacro
 
 ; @exit(signal)
