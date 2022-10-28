@@ -2,7 +2,14 @@
 
 global itoa
 
-%include "_math.asm"
+; Copy-pasted from _lib.asm.
+%macro @cdiv 2
+        mov  rax, %1                   ; idiv uses this
+        mov  rdx, 0                    ; idiv also uses this (for remainder)
+        mov  rdi, %2                   ; we use this on our own
+        idiv rdi                       ; rax, rdx is implicitly set;
+                                       ; div/idiv is very weird
+%endmacro
 
 section .text
 
