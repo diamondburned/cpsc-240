@@ -79,6 +79,17 @@ extern clock_gettime
         @print_int     rax             ; print that counter
 %endmacro
 
+; @print_tics()
+%macro @print_tics 0
+        rdtsc                          ; get CPU monotonic clock
+
+        shl rdx, 32                    ; rdtsc puts the number in both rdx and
+                                       ; rax because of 32-bit legacy reasons.
+        or rax, rdx                    ; OR them together.
+
+        @print_int rax                 ; print that counter
+%endmacro
+
 ; @exit(signal)
 %macro @exit 1
         mov  rdi, %1
