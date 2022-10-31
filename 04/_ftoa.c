@@ -20,25 +20,46 @@ long int ftoa(double n, char *buf, long int buflen) {
     return 3;
   }
 
-  // Floor the number to get the integer part.
-  int i = (int)n;
+  long int written = 0;
+
+  // Explicitly check if our number is negative.
+  // If we have a negative number, then we need to write a negative sign.
+  if (n < 0) {
+    if (buflen < 2) {
+      buf[0] = '\0';
+      return 0;
+    }
+
+    buf[written] = '-';
+    written++;
+
+    // Invert the number since it's positive now.
+    n = -n;
+  }
+
+  // Floor the number.
+  long int whole = (long int)n;
 
   // Convert the integer part to a string.
-  long int nlen = itoa(i, buf, buflen);
+  long int nlen = itoa(whole, buf + written, buflen);
   if (nlen == 0) {
+    buf[0] = '\0';
     return 0;
   }
 
-  // Get the decimal part.
-  double f = n - i;
-  if (f < 0) {
-    f = -f;
-  }
+  written += nlen;
 
+  // Get the decimal part.
+  double f = n - whole;
   if (f > 0) {
+    if (buflen < written + 2) {
+      buf[0] = '\0';
+      return 0;
+    }
+
     // Add a decimal point.
-    buf[nlen] = '.';
-    nlen++;
+    buf[written] = '.';
+    written++;
 
     // Allocate a temporary 6 bytes buffer for the decimal part. This will be
     // our precision.
@@ -52,6 +73,7 @@ long int ftoa(double n, char *buf, long int buflen) {
     // Convert the decimal part to a string.
     long int dlen = itoa(d, dbuf, dbuflen);
     if (dlen == 0) {
+      buf[0] = '\0';
       return 0;
     }
 
@@ -88,13 +110,13 @@ long int ftoa(double n, char *buf, long int buflen) {
 
     // Copy dbuf to buf.
     for (int i = 0; i < dlen; i++) {
-      buf[nlen] = dbuf[i];
-      nlen++;
+      buf[written] = dbuf[i];
+      written++;
     }
 
     // Write the null terminator.
-    buf[nlen] = '\0';
+    buf[written] = '\0';
   }
 
-  return nlen;
+  return written;
 }
