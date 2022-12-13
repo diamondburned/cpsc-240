@@ -26,8 +26,8 @@ random_fill_array:
         mov    rax, 0
         rdrand rax
 
-; Convert to double and store in xmm0.
-        cvtsi2sd xmm0, rax
+; Cast to double and store in xmm0.
+        movq xmm0, rax
 
 ; Assert that it's not NaN, regenerate if it is.
         ucomisd xmm0, xmm0             ; if NaN, then parity flag is set
