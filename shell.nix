@@ -1,23 +1,25 @@
 {
-	systemPkgs ? import <nixpkgs> {},
-	fetchFromGitHub ? systemPkgs.fetchFromGitHub,
+	pkgs ? import <nixpkgs> {},
+	fetchFromGitHub ? pkgs.fetchFromGitHub,
 }:
 
 let
-	nixpkgs = fetchFromGitHub {
+	lib = pkgs.lib;
+
+	lockedNixpkgs = fetchFromGitHub {
 		owner  = "NixOS";
 		repo   = "nixpkgs";
 		rev    = "de32261d9f1bf17ae726e3332ab43ae0983414af";
 		sha256 = "1ksibwb7b0xczf5aw2db0xa4iyizbnxs7x8mnrg9y3z80gx3xlvk";
 	};
 
-	lib  = systemPkgs.lib;
-	pkgs = import nixpkgs {};
+	lockedPkgs = import lockedNixpkgs {};
+
+	llvmPackages = lockedPkgs.llvmPackages_latest;
+	clang-unwrapped = llvmPackages.clang-unwrapped;
+	clang = llvmPackages.clang;
 
 	# clangd hack.
-	llvmPackages = pkgs.llvmPackages_latest;
-	clang-unwrapped = llvmPackages.clang-unwrapped;
-	clang  = llvmPackages.clang;
 	clangd = pkgs.writeScriptBin "clangd" ''
 	    #!${pkgs.stdenv.shell}
 		export CPATH="$(${clang}/bin/clang -E - -v <<< "" \
@@ -32,31 +34,24 @@ let
 	'';
 
 	mkshell = pkgs.mkShell.override {
-		stdenv = pkgs.gccStdenv;
+		stdenv = lockedPkgs.gccStdenv;
 	};
 
 	build = pkgs.writeShellScriptBin "build" (builtins.readFile ./build.sh);
 
-	nasm_2_14-pkgs = import (pkgs.fetchFromGitHub {
-		owner  = "NixOS";
-		repo   = "nixpkgs";
-		rev    = "de32261d9f1bf17ae726e3332ab43ae0983414af";
-		sha256 = "1ksibwb7b0xczf5aw2db0xa4iyizbnxs7x8mnrg9y3z80gx3xlvk";
-	}) {};
-   
 	nasm = pkgs.writeShellScriptBin "nasm" ''
-		${nasm_2_14-pkgs.nasm}/bin/nasm -f elf64 "$@"
+		${lockedPkgs.nasm}/bin/nasm -f elf64 "$@"
 	'';
 
 	nasmfmt = pkgs.buildGoModule {
 		pname = "nasmfmt";
 		version = "2.1.1";
 
-		src = pkgs.fetchFromGitHub {
+		src = fetchFromGitHub {
 			owner  = "diamondburned";
 			repo   = "nasmfmt";
 			rev    = "v2.1.1";
-			sha256 = "";
+			sha256 = "sha256-7KAM+tjRP9d0S4yfH1K7I4ps2sABQqyhRRSP8i0uS2U=";
 		};
 
 		vendorSha256 = null;
