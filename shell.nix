@@ -1,7 +1,18 @@
-{ systemPkgs ? import <nixpkgs> {} }:
+{
+	systemPkgs ? import <nixpkgs> {},
+	fetchFromGitHub ? systemPkgs.fetchFromGitHub,
+}:
 
-let lib  = systemPkgs.lib;
-	pkgs = systemPkgs;
+let
+	nixpkgs = fetchFromGitHub {
+		owner  = "NixOS";
+		repo   = "nixpkgs";
+		rev    = "de32261d9f1bf17ae726e3332ab43ae0983414af";
+		sha256 = "1ksibwb7b0xczf5aw2db0xa4iyizbnxs7x8mnrg9y3z80gx3xlvk";
+	};
+
+	lib  = systemPkgs.lib;
+	pkgs = import nixpkgs {};
 
 	# clangd hack.
 	llvmPackages = pkgs.llvmPackages_latest;
@@ -37,23 +48,19 @@ let lib  = systemPkgs.lib;
 		${nasm_2_14-pkgs.nasm}/bin/nasm -f elf64 "$@"
 	'';
 
-	nasmfmt = pkgs.buildGo118Module {
+	nasmfmt = pkgs.buildGoModule {
 		pname = "nasmfmt";
-		version = "2.0.2-004122b";
+		version = "2.1.1";
 
 		src = pkgs.fetchFromGitHub {
 			owner  = "diamondburned";
 			repo   = "nasmfmt";
-			rev    = "ad0ca007ee82098d2d1547bc55748d4201875191";
-			sha256 = "1sglpf5jsld00g4wnpa10v9g8pvhbh7nbnpbq7hwk03jpqj9vbza";
+			rev    = "v2.1.1";
+			sha256 = "";
 		};
 
 		vendorSha256 = null;
 	};
-
-	# nasmfmt = pkgs.writeShellScriptBin "nasmfmt" ''
-	# 	/home/diamond/Scripts/nasmfmt2/nasmfmt "$@"
-	# '';
 
 	PROJECT_ROOT   = builtins.toString ./.;
 	PROJECT_SYSTEM = pkgs.system;
